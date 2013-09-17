@@ -24,6 +24,7 @@ module.exports = function(grunt) {
     bumpup: ['bower.json', 'package.json', 'xtag.json'],
     tagrelease: {
       file: 'package.json',
+      prefix: '',
       commit: true
     },
     stylus:{
@@ -36,7 +37,7 @@ module.exports = function(grunt) {
           'src/calendar.css': 'src/calendar.styl'
         }
       }
-    },
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
@@ -47,7 +48,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-tagrelease');
   grunt.loadNpmTasks('grunt-smush-components');
 
-  grunt.registerTask('build', ['jshint','smush-components']);
+  grunt.registerTask('build', ['jshint','smush-components','stylus:dist']);
   grunt.registerTask('bump:patch', ['bumpup:patch', 'tagrelease']);
 
 };
