@@ -5,8 +5,8 @@
     // used during creating calendar elements
     var GET_DEFAULT_LABELS = function(){
         return {
-            prev: '<',
-            next: '>',
+            prev: '←',
+            next: '→',
             months: ['January', 'February', 'March', 'April', 'May', 'June', 'July',
                      'August', 'September', 'October', 'November', 'December'],
             weekdays: ['Sun', "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -19,31 +19,22 @@
         ***IMPORTANT*** call this anytime we create a new Date(), in order to
         ensure avoid oddities caused by mixing and matching timezone offsets
     **/
-    function toUTCDate(localDate){
+    function normalize(localDate){
         // don't try to reconvert a date already set to UTC time, or
         // the inherent timezone information of JS Dates may change an already
         // converted date
-        var utcDate;
-        if(localDate.getUTCHours() === 0)
-        {
-            utcDate = new Date(localDate.valueOf());
-        }
-        else{
-            utcDate = new Date();
-            utcDate.setUTCHours(0);
-            utcDate.setUTCFullYear(localDate.getFullYear());
-            utcDate.setUTCMonth(localDate.getMonth());
-            utcDate.setUTCDate(localDate.getDate());
-        }
+        var normalizedDate = new Date(localDate.valueOf());
 
-        utcDate.setUTCMinutes(0);
-        utcDate.setUTCSeconds(0);
-        utcDate.setUTCMilliseconds(0);
-        return utcDate;
+        normalizedDate.setHours(0);
+        normalizedDate.setMinutes(0);
+        normalizedDate.setSeconds(0);
+        normalizedDate.setMilliseconds(0);
+
+        return normalizedDate;
     }
 
     // the current date, set to midnight UTC time
-    var TODAY = toUTCDate(new Date());
+    var TODAY = normalize(new Date());
 
     // constants used in tracking the type of the current drag/paint operation
     var DRAG_ADD = "add";
@@ -188,16 +179,16 @@
     // Date utils
 
     function getYear(d) {
-        return d.getUTCFullYear();
+        return d.getFullYear();
     }
     function getMonth(d) {
-        return d.getUTCMonth();
+        return d.getMonth();
     }
     function getDate(d) {
-        return d.getUTCDate();
+        return d.getDate();
     }
     function getDay(d){
-        return d.getUTCDay();
+        return d.getDay();
     }
 
     /** pad: (Number, Number) => String
@@ -234,7 +225,7 @@
         if (isValidDateObj(s)) return s;
         var d = ISO_DATE_REGEX.exec(s);
         if (d) {
-          return toUTCDate(new Date(d[1],d[2]-1,d[3]));
+          return normalize(new Date(d[1],d[2]-1,d[3]));
         }
         else{
             return null;
@@ -262,7 +253,7 @@
         else{
             var parsedMs = Date.parse(dateStr);
             if(!isNaN(parsedMs)){
-                return toUTCDate(new Date(parsedMs));
+                return normalize(new Date(parsedMs));
             }
             return null;
         }
@@ -379,7 +370,19 @@
         if (y === undefined) y = getYear(base);
         if (m === undefined) m = getMonth(base);
         if (d === undefined) d = getDate(base);
-        return toUTCDate(new Date(y,m,d));
+        return normalize(new Date(y,m,d));
+    }
+
+    /* daysInMonth: (month) => Number
+
+    Returns the number of days in the month specified
+    */
+
+    function daysInMonth(month, year) {
+        if (!year) {
+            year = (new Date()).getFullYear();
+        }
+        return (new Date(year, month+1, 0)).getDate();
     }
 
     /* relOffset: (Date, number, number. number) => Date
@@ -394,6 +397,25 @@
                     getYear(base) + y,
                     getMonth(base) + m,
                     getDate(base) + d);
+    }
+
+    function nextMonth(d) {
+        var date = d.getDate();
+        var daysInNextMonth = daysInMonth(d.getMonth()+1, d.getFullYear())
+        if (date > daysInNextMonth) {
+            date = daysInNextMonth;
+        }
+        console.log(new Date(d.getFullYear(), d.getMonth()+1, date).toString());
+        return new Date(d.getFullYear(), d.getMonth()+1, date);
+    }
+
+    function prevMonth(d) {
+        var date = d.getDate();
+        var daysInPrevMonth = daysInMonth(d.getMonth()-1, d.getFullYear())
+        if (date > daysInPrevMonth) {
+            date = daysInPrevMonth;
+        }
+        return new Date(d.getFullYear(), d.getMonth()-1, date);
     }
 
     /** findWeekStart: Date => Date
@@ -452,8 +474,8 @@
     **/
     function findFirst(d) {
         d = new Date(d.valueOf());
-        d.setUTCDate(1);
-        return toUTCDate(d);
+        d.setDate(1);
+        return normalize(d);
     }
 
     /** findLast: Date => Date
@@ -1227,9 +1249,7 @@
         **/
         "firstVisibleMonth": {
             get: function(){
-                return findFirst(
-                         relOffset(this.view, 0, -Math.floor(this.span/2), 0)
-                       );
+                return findFirst(this.view);
             }
         },
 
@@ -1752,14 +1772,14 @@
             // Go back one month by updating the view attribute of the calendar
             prevMonth: function(){
                 var calObj = this.xtag.calObj;
-                calObj.view = relOffset(calObj.view, 0, -1, 0);
+                calObj.view = prevMonth(calObj.view);
             },
 
             // Advance one month forward by updating the view attribute
             // of the calendar
             nextMonth: function(){
                 var calObj = this.xtag.calObj;
-                calObj.view = relOffset(calObj.view, 0, 1, 0);
+                calObj.view = nextMonth(calObj.view);
             },
 
             // sets the given date as chosen, either overriding the current
