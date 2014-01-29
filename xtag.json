@@ -1,7 +1,7 @@
 {
 	"name": "Calendar",
 	"tagName": "x-calendar",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"author": "Leon Zhang, Matthew Claypotch",
 	"description": "A component acting as a calendar widget that can be manipulated with minimal user-written code/layout.",
 	"demo": "demo/testpage.html",
