@@ -561,6 +561,8 @@
         var controls = makeEl('div.controls');
         var prev = makeEl('span.prev');
         var next = makeEl('span.next');
+        prev.setAttribute('role', 'button');
+        next.setAttribute('role', 'button');
         prev.innerHTML = labelData.prev;
         next.innerHTML = labelData.next;
         appendChild(controls, prev);
@@ -652,6 +654,7 @@
         var sDate = findWeekStart(findFirst(d), firstWeekday);
 
         var monthEl = makeEl('div.month');
+        monthEl.setAttribute('role', 'grid');
         // create month label
         var monthLabel = makeEl('div.month-label');
         monthLabel.textContent = labels.months[month] + ' ' + getYear(d);
@@ -677,7 +680,11 @@
         for (step=0; step < maxDays; step++) {
           var day = makeEl('span.day');
           day.setAttribute('data-date', iso(cDate));
+          day.setAttribute('role', 'gridcell');
           day.textContent = getDate(cDate);
+
+          // give each day a class based on which day of the week it is.
+          addClass(day, 'day-' + (firstWeekday + step) % 7);
 
           if (getMonth(cDate) !== month) {
             addClass(day, 'badmonth');
