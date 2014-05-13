@@ -1,12 +1,10 @@
 {
   "name": "x-tag-calendar",
-  "description": "A port of Potch's fortnight.js calendar UI in component form",
+  "description": "A port of Potch's fortnight.js calendar UI in component form.",
   "version": "0.1.7",
   "keywords": [
+    "element",
     "web-components",
-    "button",
-    "icon",
-    "label",
     "x-tag"
   ],
   "main": [
